@@ -1,3 +1,13 @@
+const mongoose = require('mongoose');
+const Document = require('./Document');
+
+mongoose.connect('mongodb://localhost/google-docs-clone', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+});
+
 const io = require('socket.io')(3001, {
     cors: {
         origin: 'http://localhost:3000',
@@ -17,3 +27,7 @@ io.on("connection", socket => {
         });
     })
 });
+
+const findOrCreateDocument = () => {
+
+}
