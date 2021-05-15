@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const DocumentSchema = mongoose.Schema({
-    id: String,
+    _id: String,
     data: String
 }, {
     useTimestamps: true
