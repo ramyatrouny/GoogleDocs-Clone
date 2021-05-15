@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Quill from 'quill'
 import io from 'socket.io-client';
+import { useParams } from 'react-router-dom'
 import 'quill/dist/quill.snow.css'
+
 
 const TOOLBAR_OPTIONS = [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -16,10 +18,9 @@ const TOOLBAR_OPTIONS = [
 ]
 
 export default function TextEditor() {
-
+    const { id: documentId } = useParams();
     const [socket, setSocket] = useState();
     const [quilly, setQuill] = useState();
-
     // To connect to the server Socket IO
     useEffect(() => {
         const s = io("http://localhost:3001");
@@ -30,9 +31,20 @@ export default function TextEditor() {
         }
     }, []);
 
+    useEffect(() => {
+        if (socket == null || quilly == null) return;
+
+        socket.once('load-document', document => {
+            quilly.setContents(document);
+            quilly.enable();
+        })
+        socket.emit('get-document', documentId);
+
+    }, [socket, quilly, documentId]);
+
     // To handle any changes apply on the document
     useEffect(() => {
-        if (socket === null || quilly === null) return;
+        if (socket == null || quilly == null) return;
 
         // handle quill text through Delta params
         const handler = (delta) => {
@@ -50,7 +62,7 @@ export default function TextEditor() {
 
     // To handle emitting text changes
     useEffect(() => {
-        if (socket === null || quilly === null) return;
+        if (socket == null || quilly == null) return;
 
         // To send to the server the changes through socket
         const handler = (delta, oldDelta, source) => {
@@ -85,6 +97,9 @@ export default function TextEditor() {
                 toolbar: TOOLBAR_OPTIONS
             }
         });
+
+        q.disable();
+        q.setText('Loading');
 
         setQuill(q);
     }, []);
