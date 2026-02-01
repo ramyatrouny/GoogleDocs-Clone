@@ -1,68 +1,113 @@
 # Google Docs Clone
 
-The Project is a real-time CRUD text editor exactly the same as Google Docs
+A real-time collaborative document editor built with React 19, Socket.IO, Quill 2, and MongoDB.
 
-## Project Architecture
+Multiple users can simultaneously edit the same document with changes propagated in real-time via WebSockets and automatically persisted to the database.
 
-The project is divided into 2 parts: `Client` and `Server`
+## Tech Stack
 
-### Client:
-The client is React application that uses [Quill](https://www.npmjs.com/package/quill) as a WYSIWYG text editor that emits events based on the user changes
+| Layer     | Technology                                          |
+| --------- | --------------------------------------------------- |
+| Client    | React 19, TypeScript 5, Vite 6, Quill 2, Socket.IO |
+| Server    | Node.js, TypeScript 5, Socket.IO 4.8, Mongoose 8    |
+| Database  | MongoDB 8                                           |
+| Tooling   | Docker Compose, tsx, ESLint                         |
 
-### Server:
-The server is a NodeJS script that uses [Socket.IO](https://socket.io/) to handle the user events and store them in MongoDB
+## Architecture
 
-
-## Installation 
-
-In order to install the application, you have to do an `npm install` in each repository as below
-* Clone The repo
-```bash
-https://github.com/ramyatrouny/GoogleDocs-Clone.git
 ```
-* Install the server
-```bash
-cd server && npm install 
+client/                     server/
+├── src/                    ├── src/
+│   ├── components/         │   ├── config/      # Env validation (Zod)
+│   │   └── TextEditor.tsx  │   ├── handlers/    # Socket event handlers
+│   ├── hooks/              │   ├── models/      # Mongoose schemas
+│   │   ├── useSocket.ts    │   ├── types/       # Shared type definitions
+│   │   └── useDocumentSync │   └── index.ts     # Entry point
+│   ├── config/             ├── tsconfig.json
+│   ├── types/              └── package.json
+│   ├── styles/
+│   ├── App.tsx
+│   └── main.tsx
+├── vite.config.ts
+├── tsconfig.json
+└── package.json
 ```
-* Install the client
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- Docker (for MongoDB) _or_ a local MongoDB instance
+
+### 1. Start MongoDB
+
 ```bash
+docker compose up -d
+```
+
+Or point `MONGODB_URI` to an existing instance.
+
+### 2. Install Dependencies
+
+```bash
+# Server
+cd server && npm install
+
+# Client
 cd client && npm install
 ```
-* Run the server
+
+### 3. Configure Environment
+
+Copy the example env files and adjust if needed:
+
 ```bash
-cd server && npm run start
+cp server/.env.example server/.env
+cp client/.env.example client/.env
 ```
-* Run the client
+
+### 4. Run
+
 ```bash
-cd client && npm run start
+# Terminal 1 - Server
+cd server && npm run dev
+
+# Terminal 2 - Client
+cd client && npm run dev
 ```
-* Make sure that you have MongoDB Schema `google-docs-clone` working on your local machine
 
+Open [http://localhost:5173](http://localhost:5173). The app generates a unique document URL on load. Share the URL with another browser tab to see real-time collaboration.
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+## Available Scripts
 
-Please make sure to update tests as appropriate.
+### Server
+
+| Script        | Description                    |
+| ------------- | ------------------------------ |
+| `npm run dev` | Start dev server with hot reload (tsx watch) |
+| `npm run build` | Compile TypeScript to `dist/` |
+| `npm start`   | Run compiled production build  |
+| `npm run typecheck` | Type-check without emitting |
+
+### Client
+
+| Script        | Description                     |
+| ------------- | ------------------------------- |
+| `npm run dev` | Start Vite dev server           |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview production build     |
+| `npm run typecheck` | Type-check without emitting |
+
+## How It Works
+
+1. The client connects to the server via Socket.IO
+2. On visiting `/documents/:id`, the server retrieves or creates the document in MongoDB
+3. The Quill editor loads the document content
+4. User keystrokes emit `send-changes` events containing Quill Delta operations
+5. The server broadcasts deltas to all other clients in the same document room
+6. An auto-save interval persists the full document state every 2 seconds
 
 ## License
-MIT License
 
-Copyright (c) 2021 Rami Atrouni
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+MIT License - Copyright (c) 2021 Rami Atrouni
