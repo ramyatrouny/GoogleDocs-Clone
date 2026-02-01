@@ -4,6 +4,8 @@ A real-time collaborative document editor built with React 19, Socket.IO, Quill 
 
 Multiple users can simultaneously edit the same document with changes propagated in real-time via WebSockets and automatically persisted to the database.
 
+> **Note:** This project was originally built in 2021 and has since undergone a full modernization, migrating from JavaScript to TypeScript, CRA to Vite, React 17 to 19, and restructuring both client and server into a clean, production-grade architecture. See [REFACTORING.md](REFACTORING.md) for the complete breakdown of every change and the reasoning behind it.
+
 ## Tech Stack
 
 | Layer     | Technology                                          |
