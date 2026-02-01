@@ -1,11 +1,48 @@
 services:
   mongodb:
     image: mongo:8
-    container_name: google-docs-mongo
+    container_name: gdocs-mongodb
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+      - ./mongo/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: mongosh --eval "db.runCommand('ping').ok" --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: ./server
+      target: development
+    container_name: gdocs-server
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      MONGODB_URI: mongodb://mongodb:27017/google-docs-clone
+      CLIENT_ORIGIN: http://localhost:5173
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./server/src:/app/src:ro
+
+  client:
+    build:
+      context: ./client
+      target: development
+    container_name: gdocs-client
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_SERVER_URL: http://localhost:3001
+    depends_on:
+      - server
+    volumes:
+      - ./client/src:/app/src:ro
 
 volumes:
   mongo-data:

@@ -37,20 +37,39 @@ client/                     server/
 
 ## Getting Started
 
-### Prerequisites
+### Quick Start with Docker
 
-- Node.js 20+
-- Docker (for MongoDB) _or_ a local MongoDB instance
-
-### 1. Start MongoDB
+The fastest way to run the entire project. A single command spins up MongoDB (with seed data), the Node.js server, and the Vite client:
 
 ```bash
-docker compose up -d
+docker compose up
 ```
 
-Or point `MONGODB_URI` to an existing instance.
+Once all three containers are running, open [http://localhost:5173](http://localhost:5173).
 
-### 2. Install Dependencies
+The database is automatically seeded with two sample documents on first launch:
+
+| URL | Description |
+| --- | ----------- |
+| [/documents/welcome](http://localhost:5173/documents/welcome) | A feature overview document |
+| [/documents/getting-started](http://localhost:5173/documents/getting-started) | A keyboard shortcuts guide |
+
+To start fresh, remove the volume and re-run:
+
+```bash
+docker compose down -v && docker compose up
+```
+
+### Manual Setup
+
+If you prefer running without Docker:
+
+#### Prerequisites
+
+- Node.js 20+
+- A running MongoDB instance
+
+#### 1. Install Dependencies
 
 ```bash
 # Server
@@ -60,7 +79,7 @@ cd server && npm install
 cd client && npm install
 ```
 
-### 3. Configure Environment
+#### 2. Configure Environment
 
 Copy the example env files and adjust if needed:
 
@@ -69,7 +88,7 @@ cp server/.env.example server/.env
 cp client/.env.example client/.env
 ```
 
-### 4. Run
+#### 3. Run
 
 ```bash
 # Terminal 1 - Server
@@ -100,6 +119,16 @@ Open [http://localhost:5173](http://localhost:5173). The app generates a unique 
 | `npm run build` | Type-check and build for production |
 | `npm run preview` | Preview production build     |
 | `npm run typecheck` | Type-check without emitting |
+
+### Docker
+
+| Command | Description |
+| ------- | ----------- |
+| `docker compose up` | Start all services (MongoDB + server + client) |
+| `docker compose up -d` | Start all services in the background |
+| `docker compose down` | Stop all services |
+| `docker compose down -v` | Stop all services and remove database volume |
+| `docker compose build` | Rebuild container images |
 
 ## How It Works
 
